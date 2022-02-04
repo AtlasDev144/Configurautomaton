@@ -112,15 +112,19 @@ public final class Configurautomaton {
             InstantiationException,
             IllegalAccessException,
             ConfigurautomatonException.FormatterException {
+        System.out.println("1");
         final String path = this.paths.get(pathName);
         if(path == null) throw new ConfigurautomatonException.PathException(pathName);
+        System.out.println("2");
 
         final Class<T> configuration = (Class<T>) this.configurations.get(fileName);
         if(configuration == null) throw new ConfigurautomatonException.ConfigurationException(fileName);
+        System.out.println("3");
 
         final String file = path + "/" + fileName;
         final FileConfig config = this.loadFile(file);
         if(config == null) throw new ConfigurautomatonException.LoadException(file);
+        System.out.println("4");
 
         T object = configuration.newInstance();
         this.objectConverter.toObject(config, configuration.newInstance());
