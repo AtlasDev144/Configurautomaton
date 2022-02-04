@@ -124,6 +124,7 @@ public final class Configurautomaton {
 
         T object = configuration.newInstance();
         this.objectConverter.toObject(config, configuration.newInstance());
+        System.out.println("Config: " + config.toString());
 
         return new ImmutableLoadedConfig<>(object, config);
     }
@@ -135,6 +136,7 @@ public final class Configurautomaton {
      * @throws ConfigurautomatonException.FormatterException
      */
     private FileConfig loadFile(final @NonNull String path) throws ConfigurautomatonException.FormatterException {
+        System.out.println("Path: " + path);
         ConfigFormat<?> format;
         if(path.contains(".toml")) format = TomlFormat.instance();
         else if(path.contains(".yaml")) format = YamlFormat.defaultInstance();
