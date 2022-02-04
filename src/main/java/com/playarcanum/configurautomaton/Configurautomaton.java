@@ -1,7 +1,6 @@
 package com.playarcanum.configurautomaton;
 
 import com.electronwill.nightconfig.core.ConfigFormat;
-import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.conversion.ObjectConverter;
 import com.electronwill.nightconfig.core.file.FileConfig;
 import com.electronwill.nightconfig.json.JsonFormat;
@@ -58,7 +57,9 @@ public final class Configurautomaton {
     }
 
     /**
-     * Load a mutable configuration file.
+     * Create a {@link LoadedConfig} containing your specified configuratino object.
+     * If writing changes to that configuration object, be sure to then pass the {@link LoadedConfig}
+     * to {@link Configurautomaton#save(LoadedConfig)}.
      * @param pathName
      * @param fileName
      * @param <T>
