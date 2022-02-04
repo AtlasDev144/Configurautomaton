@@ -8,7 +8,6 @@ import com.electronwill.nightconfig.json.JsonFormat;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.yaml.YamlFormat;
 import com.playarcanum.configurautomaton.configuration.Configuration;
-import com.playarcanum.configurautomaton.configuration.IConfiguration;
 import com.playarcanum.inject.annotations.Singleton;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @SuppressWarnings("ALL")
 @Singleton
 public final class Configurautomaton {
-    private final ConcurrentHashMap<String, Class<? extends IConfiguration>> configurations;
+    private final ConcurrentHashMap<String, Class<?>> configurations;
     private final ConcurrentHashMap<String, String> paths;
     private final ObjectConverter objectConverter;
     private final Set<WeakReference<FileConfig>> openConfigs;
@@ -41,7 +40,7 @@ public final class Configurautomaton {
      * @param <T>
      * @throws ConfigurautomatonException.AnnotationMissingException
      */
-    public <T extends IConfiguration> void register(final @NonNull Class<T> configuration) throws ConfigurautomatonException.AnnotationMissingException{
+    public <T> void register(final @NonNull Class<T> configuration) throws ConfigurautomatonException.AnnotationMissingException{
         final Configuration annotation = configuration.getAnnotation(Configuration.class);
         if(annotation != null) {
             this.configurations.put(annotation.file(), configuration);
@@ -69,7 +68,7 @@ public final class Configurautomaton {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public <T extends IConfiguration> LoadedConfig<T> load(final @NonNull String pathName, final @NonNull String fileName)
+    public <T> LoadedConfig<T> load(final @NonNull String pathName, final @NonNull String fileName)
             throws ConfigurautomatonException.PathException,
             ConfigurautomatonException.ConfigurationException,
             ConfigurautomatonException.LoadException,
@@ -106,7 +105,7 @@ public final class Configurautomaton {
      * @throws InstantiationException
      * @throws IllegalAccessException
      */
-    public <T extends IConfiguration> ImmutableLoadedConfig<T> loadImmutable(final @NonNull String pathName, final @NonNull String fileName)
+    public <T> ImmutableLoadedConfig<T> loadImmutable(final @NonNull String pathName, final @NonNull String fileName)
             throws ConfigurautomatonException.PathException,
             ConfigurautomatonException.ConfigurationException,
             ConfigurautomatonException.LoadException,
@@ -158,7 +157,7 @@ public final class Configurautomaton {
      * @param config
      * @param <T>
      */
-    public <T extends IConfiguration> void save(final @NonNull LoadedConfig<T> config) {
+    public <T> void save(final @NonNull LoadedConfig<T> config) {
         config.config.save();
         config.config.close();
 
@@ -184,14 +183,14 @@ public final class Configurautomaton {
 
     @AllArgsConstructor
     @Getter
-    public static final class LoadedConfig<T extends IConfiguration> {
+    public static final class LoadedConfig<T> {
         private final T configuration;
         private final FileConfig config;
     }
 
     @AllArgsConstructor
     @Getter
-    public static final class ImmutableLoadedConfig<T extends IConfiguration> {
+    public static final class ImmutableLoadedConfig<T> {
         private final T configuration;
         private final UnmodifiableConfig config;
     }
