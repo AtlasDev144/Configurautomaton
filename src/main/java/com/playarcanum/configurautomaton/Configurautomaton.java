@@ -18,11 +18,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 @SuppressWarnings("ALL")
 @Singleton
 public final class Configurautomaton {
-    private final ConcurrentHashMap<String, Class<?>> configurations;
+    private final ConcurrentHashMap<String, Supplier<?>> configurations;
     private final ConcurrentHashMap<String, String> paths;
     private final ObjectConverter objectConverter;
     private final Set<WeakReference<FileConfig>> openConfigs;
@@ -40,10 +41,10 @@ public final class Configurautomaton {
      * @param <T>
      * @throws ConfigurautomatonException.AnnotationMissingException
      */
-    public <T> void register(final @NonNull Class<T> configuration) throws ConfigurautomatonException.AnnotationMissingException{
+    public <T> void register(final @NonNull Class<T> configuration, final @NonNull Supplier<T> instance) throws ConfigurautomatonException.AnnotationMissingException{
         final Configuration annotation = configuration.getAnnotation(Configuration.class);
         if(annotation != null) {
-            this.configurations.put(annotation.file(), configuration);
+            this.configurations.put(annotation.file(), instance);
         } else throw new ConfigurautomatonException.AnnotationMissingException(configuration);
     }
 
@@ -78,17 +79,14 @@ public final class Configurautomaton {
         final String path = this.paths.get(pathName);
         if(path == null) throw new ConfigurautomatonException.PathException(pathName);
 
-        final Class<T> configuration = (Class<T>) this.configurations.get(fileName);
+        final Supplier<T> configuration = (Supplier<T>) this.configurations.get(fileName);
         if(configuration == null) throw new ConfigurautomatonException.ConfigurationException(fileName);
 
         final String file = path + "/" + fileName;
         final FileConfig config = this.loadFile(file);
         if(config == null) throw new ConfigurautomatonException.LoadException(file);
 
-        T object = configuration.newInstance();
-        this.objectConverter.toObject(config, configuration.newInstance());
-
-        final LoadedConfig<T> loadedConfig =  new LoadedConfig<>(object, config);
+        final LoadedConfig<T> loadedConfig =  new LoadedConfig<>(this.objectConverter.toObject(config, configuration), config);
         this.openConfigs.add(new WeakReference<>(loadedConfig.config));
         return loadedConfig;
     }
@@ -112,25 +110,17 @@ public final class Configurautomaton {
             InstantiationException,
             IllegalAccessException,
             ConfigurautomatonException.FormatterException {
-        System.out.println("1");
         final String path = this.paths.get(pathName);
         if(path == null) throw new ConfigurautomatonException.PathException(pathName);
-        System.out.println("2");
 
-        final Class<T> configuration = (Class<T>) this.configurations.get(fileName);
+        final Supplier<T> configuration = (Supplier<T>) this.configurations.get(fileName);
         if(configuration == null) throw new ConfigurautomatonException.ConfigurationException(fileName);
-        System.out.println("3");
 
         final String file = path + "/" + fileName;
         final FileConfig config = this.loadFile(file);
         if(config == null) throw new ConfigurautomatonException.LoadException(file);
-        System.out.println("4");
 
-        T object = configuration.newInstance();
-        this.objectConverter.toObject(config, configuration.newInstance());
-        System.out.println("Config: " + config.toString());
-
-        return new ImmutableLoadedConfig<>(object, config);
+        return new ImmutableLoadedConfig<>(this.objectConverter.toObject(config, configuration), config);
     }
 
     /**
@@ -140,7 +130,6 @@ public final class Configurautomaton {
      * @throws ConfigurautomatonException.FormatterException
      */
     private FileConfig loadFile(final @NonNull String path) throws ConfigurautomatonException.FormatterException {
-        System.out.println("Path: " + path);
         ConfigFormat<?> format;
         if(path.contains(".toml")) format = TomlFormat.instance();
         else if(path.contains(".yaml")) format = YamlFormat.defaultInstance();

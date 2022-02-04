@@ -20,7 +20,7 @@ public abstract class ConfigurautomatonException extends Throwable{
 
     public static final class ConfigurationException extends ConfigurautomatonException {
         public ConfigurationException(final @NonNull String fileName) {
-            super("A configuration object relating to the file: " + fileName + " wasn't found. Did you register it?");
+            super("A configuration supplier relating to the file: " + fileName + " wasn't found. Did you register it?");
         }
     }
 
