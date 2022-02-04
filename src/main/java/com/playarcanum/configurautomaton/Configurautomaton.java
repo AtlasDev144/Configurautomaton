@@ -144,6 +144,7 @@ public final class Configurautomaton {
 
         final FileConfig config = FileConfig.builder(path, format)
                 .autosave()
+                .concurrent()
                 .build();
         if (config != null) {
             config.load();
