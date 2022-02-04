@@ -86,41 +86,9 @@ public final class Configurautomaton {
         final FileConfig config = this.loadFile(file);
         if(config == null) throw new ConfigurautomatonException.LoadException(file);
 
-        final LoadedConfig<T> loadedConfig =  new LoadedConfig<>(this.objectConverter.toObject(config, configuration), config);
+        final LoadedConfig<T> loadedConfig =  new LoadedConfig<T>(fileName, this.objectConverter.toObject(config, configuration), config);
         this.openConfigs.add(new WeakReference<>(loadedConfig.config));
         return loadedConfig;
-    }
-
-    /**
-     * Load an immutable configuration file.
-     * @param pathName
-     * @param fileName
-     * @param <T>
-     * @return the configuration file and the instantiated configuration object
-     * @throws ConfigurautomatonException.PathException
-     * @throws ConfigurautomatonException.ConfigurationException
-     * @throws ConfigurautomatonException.LoadException
-     * @throws InstantiationException
-     * @throws IllegalAccessException
-     */
-    public <T> ImmutableLoadedConfig<T> loadImmutable(final @NonNull String pathName, final @NonNull String fileName)
-            throws ConfigurautomatonException.PathException,
-            ConfigurautomatonException.ConfigurationException,
-            ConfigurautomatonException.LoadException,
-            InstantiationException,
-            IllegalAccessException,
-            ConfigurautomatonException.FormatterException {
-        final String path = this.paths.get(pathName);
-        if(path == null) throw new ConfigurautomatonException.PathException(pathName);
-
-        final Supplier<T> configuration = (Supplier<T>) this.configurations.get(fileName);
-        if(configuration == null) throw new ConfigurautomatonException.ConfigurationException(fileName);
-
-        final String file = path + "/" + fileName;
-        final FileConfig config = this.loadFile(file);
-        if(config == null) throw new ConfigurautomatonException.LoadException(file);
-
-        return new ImmutableLoadedConfig<>(this.objectConverter.toObject(config, configuration), config);
     }
 
     /**
@@ -153,6 +121,8 @@ public final class Configurautomaton {
      * @param <T>
      */
     public <T> void save(final @NonNull LoadedConfig<T> config) {
+        this.objectConverter.toConfig(config.configuration, config.config);
+
         config.config.save();
         config.config.close();
 
@@ -177,16 +147,9 @@ public final class Configurautomaton {
     }
 
     @AllArgsConstructor
-    @Getter
     public static final class LoadedConfig<T> {
-        private final T configuration;
+        private final String file;
+        @Getter private final T configuration;
         private final FileConfig config;
-    }
-
-    @AllArgsConstructor
-    @Getter
-    public static final class ImmutableLoadedConfig<T> {
-        private final T configuration;
-        private final UnmodifiableConfig config;
     }
 }
