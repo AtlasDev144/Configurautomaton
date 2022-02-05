@@ -24,7 +24,7 @@
         <dependency>
             <groupId>com.github.AtlasDev144</groupId>
             <artifactId>Olympus</artifactId>
-            <version>0.0.6.k</version>
+            <version>pre-release</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
