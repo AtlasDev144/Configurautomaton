@@ -7,7 +7,7 @@ import com.electronwill.nightconfig.json.JsonFormat;
 import com.electronwill.nightconfig.toml.TomlFormat;
 import com.electronwill.nightconfig.yaml.YamlFormat;
 import com.playarcanum.configurautomaton.configuration.Configuration;
-import com.playarcanum.inject.annotations.Singleton;
+import com.playarcanum.olympus.annotations.Singleton;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NonNull;
